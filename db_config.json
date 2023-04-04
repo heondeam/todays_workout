@@ -1,0 +1,8 @@
+{
+    "database": {
+        "url": "mongodb://shlee:1234@localhost:27017",
+        "name": "jungle",
+        "user": "",
+        "password": ""
+    }
+}
