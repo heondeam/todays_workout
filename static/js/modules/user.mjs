@@ -15,61 +15,87 @@ class User {
      * 이벤트 바인딩
      */
     loadEvents() {
-        if(window.location.pathname === "/login") {
-            $("#login-btn").click(() => { this.login(); })
+        const nowPathName = window.location.pathname;
+
+        if(nowPathName === "/login") {
+            $("#login-btn").click(() => { 
+                this.login(); 
+            });
+
+            $("#join-btn").click(() => {
+                window.location.replace("/join");
+            });
+        }else if(nowPathName === "/join") {
+            $("#join-btn").click(() => {
+                this.join();
+            });
         }
     }
-
 
     /**
      * 로그인
      */
     async login() {
-        const userId = $("#user_id").val();
-        const userPw = $("#user_pw").val();
+        const userInfo = {
+            user_id: $("#user-id").val(),
+            user_pw: $("#user-pw").val()
+        }
 
+        try {
+            const res = await this.http.request("login", "POST", {
+                ...userInfo
+            });
 
-        console.log(userId, userPw);
+            if(res.result === "success") {
+                console.log("로그인 성공!");
+                this.handleToken(res.token);
+                location.replace("/");
+            }
+        }catch (e) {
+            console.log(userInfo);
 
-        // try {
-        //     const res = await this.http.request("login", "POST", {
-        //         user_id: id,
-        //         user_pw: password
-        //     });
-
-        //     if(res.result === "success") {
-        //         console.log("로그인 성공!");
-        //     }else {
-        //         console.log(res.msg);
-        //     }
-        // }catch (e) {
-        //     console.log(e);
-        // }
+            console.log(e);
+        }
     }
-
 
     /**
      * 회원가입
      */
-    async join(userInfo) {
+    async join() {
+        const userInfo = {
+            user_id: $("#user-id").val(),
+            user_pw: $("#user-pw").val(),
+            user_name: $("#user-name").val(),
+            user_class: $("#user-class option:selected").val()
+        }
+
         try { 
             const res = await this.http.request("join", "POST", {
                 ...userInfo
             });
 
             if(res.result === "success") {
-                console.log("회원가입 성공!")
-            }else {
-
-                return console.log(res.result.msg);
+                window.alert("회원가입 성공!");
+                this.handleToken(res.token);
+                location.replace("/");
             }
         }catch(e) {
             console.log(e);
         }
-
-
     }
 
+    /**
+     * set token to sessionStorage
+     */
+    handleToken (token) {
+        const isExist = sessionStorage.getItem("token");
+
+        if(isExist) {
+            sessionStorage.removeItem("token");
+        }else {
+            sessionStorage.setItem("token", token);
+        }
+    }
 
 }
 
