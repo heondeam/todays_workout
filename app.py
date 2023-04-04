@@ -18,7 +18,7 @@ app.config.update(
 # SECRET_KEY = 'TODAYS_WORKOUT'
 
 # JWT 확장 모듈을 flask 어플리케이션에 등록
-# jwt = JWTManager(app)
+jwt = JWTManager(app)
 
 @app.route('/')
 def home():
@@ -39,13 +39,13 @@ def join():
         token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(seconds=5))
         message = {'result': 'success'}
 
-        return render_template('/', token=token, message=message)
+        return render_template('main.html', token=token, message=message)
     else:
-        render_template('join.html')
+        return render_template('join.html')
         
 
 ## 로그인
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # 클라이언트로부터 데이터 받기
@@ -60,12 +60,12 @@ def login():
             token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(seconds=5))
             message = {'result': 'success'}
 
-            return render_template('/', token=token, message=message)
+            return render_template('main.html', token=token, message=message)
         # 찾지 못하면
         else:
             return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
     else: 
-        render_template('login.html')
+        return render_template('login.html')
 
 
 if __name__ == '__main__':  
