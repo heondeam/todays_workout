@@ -33,13 +33,12 @@ def join():
         name_receive = request.form['user_name']
         class_receive = request.form['user_class']
 
-        collection_users.insert_one({'id': id_receive, 'pw': pw_receive, 
-        'name': name_receive, 'class': class_receive})
+        collection_users.insert_one({'user_id': id_receive, 'user_pw': pw_receive, 
+        'user_name': name_receive, 'user_class': class_receive})
 
         token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(seconds=5))
-        message = {'result': 'success'}
 
-        return render_template('main.html', token=token, message=message)
+        return jsonify({'result': 'success', 'token': token})
     else:
         return render_template('join.html')
         
@@ -49,18 +48,20 @@ def join():
 def login():
     if request.method == 'POST':
         # 클라이언트로부터 데이터 받기
-        id_receive = request.form['id']
-        pw_receive = request.form['pw']
+        id_receive = request.form['user_id']
+        pw_receive = request.form['user_pw']
 
         # id, pw을 가지고 해당 유저를 찾습니다.
-        result = db.user.find_one({'id': id_receive, 'pw': pw_receive})
+        result = db.user.find({'user_id': id_receive, 'user_pw': pw_receive})
+        print(id_receive)
+        print(pw_receive)
+        print(result)
 
         # 찾으면 JWT 토큰을 만들어 발급
         if result is not None:
             token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(seconds=5))
-            message = {'result': 'success'}
 
-            return render_template('main.html', token=token, message=message)
+            return jsonify({'result': 'success', 'token': token})
         # 찾지 못하면
         else:
             return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
