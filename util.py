@@ -25,6 +25,11 @@ class Util:
     def getHostUserClass(userIdx):
         result = db['users'].find_one({'user_idx': userIdx})
         return result['user_class']
+    
+    # 유저 이름 정보 가져오기
+    def getHostUserName(userIdx):
+        result = db['users'].find_one({'user_idx': userIdx})
+        return result['user_name']
         
         
 

@@ -114,6 +114,7 @@ def registerWorkout():
         new_workout = {
             'workout_idx': Util.get_next_sequence('workout', 'workout_idx'),
             'host_user_idx': int(user_idx_receive), #int로 치환
+            'host_user_name': Util.getHostUserName(int(user_idx_receive)),
             'host_user_class': Util.getHostUserClass(int(user_idx_receive)),
             'title': title_receive, 
             'place': place_receive, 
