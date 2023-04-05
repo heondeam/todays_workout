@@ -36,7 +36,8 @@ def getWorkouts():
     if token:
         workouts = list(collection_workout.find({}, {'_id': 0}))
 
-        # 무한 스크롤 처리 - 3개씩 끊어서 index 범위 나누기, 해당 범위에 item이 없을 경우 빈 리스트 리턴
+        # 무한 스크롤 처리 - index로 범위 나눠서 3개씩 끊기,
+        # 해당 범위에 item이 없을 경우 빈 리스트 리턴, 해당 범위에 1,2개만 있을 경우 그 개수만큼 리턴
         start_index = 0 + ((page_receive - 1) * 3)
         end_index = 3 + ((page_receive - 1) * 3)
         page_items = workouts[start_index:end_index]
@@ -60,7 +61,8 @@ def join():
         # ID 중복체크
         if collection_users.find_one({'user_id': id_receive}):
             return jsonify({'result': 'fail', 'msg': '아이디가 이미 사용중입니다. 새로운 아이디를 입력해주세요.'})
- 
+
+        # user_idx 구하기
         userIdx = Util.get_next_sequence('users', 'user_idx')
         new_user = {
             'user_idx': userIdx,
@@ -71,7 +73,7 @@ def join():
         }
         try: 
             collection_users.insert_one(new_user)
-            token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(hours=1))
+            token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(hours=1))  # 토큰 발급
             
             return jsonify({'result': 'success', 'token': token, 'user_idx': userIdx})
         except Exception as e:
@@ -90,12 +92,12 @@ def login():
         pw_receive = request.form['user_pw']
 
         # id, pw을 가지고 해당 유저를 찾습니다.
-        result = collection_users.find_one({'user_id': id_receive, 'user_pw': pw_receive})
+        user = collection_users.find_one({'user_id': id_receive, 'user_pw': pw_receive})
 
         # 찾으면 토큰을 만들어 발급
-        if result is not None:
+        if user is not None:
             token = create_access_token(identity=id_receive, expires_delta=datetime.timedelta(hours=1))
-            userIdx = result['user_idx'] # user_idx 가져오기
+            userIdx = user['user_idx'] # user_idx 가져오기
 
             return jsonify({'result': 'success', 'token': token, 'user_idx': userIdx})
         # 찾지 못하면
@@ -182,7 +184,6 @@ def joinOrExitWorkout():
         myquery = {"workout_idx": workout_idx_receive}
 
         participants = workout['participants']  
-        print(participants)
         current_people = workout['current_people']
         maximum = workout['maximum']
 
@@ -213,7 +214,7 @@ def joinOrExitWorkout():
                     return jsonify({'result': 'fail', 'msg': e})
         
             else:
-                return jsonify({'result':'fail', 'msg':'현재 모임이 최대 인원에 도달하여서 참여하지 못하였습니다.'})    
+                return jsonify({'result':'fail', 'msg':'현재 모임이 최대 인원에 도달하여 참여하지 못하였습니다.'})    
             
         # 참여 취소 
         else:
@@ -222,7 +223,6 @@ def joinOrExitWorkout():
                 new_current_people = {
                     "$set" : { "current_people" : current_people - 1 }
                 }
-
                 participants.remove(
                     {
                         'user_idx': user_idx_receive, 
@@ -235,10 +235,9 @@ def joinOrExitWorkout():
                         "participants" : participants,
                     }
                 }
-                print(new_participants)
                 try:
-                    collection_workout.update_one(myquery,new_current_people)
-                    collection_workout.update_one(myquery,new_participants)
+                    collection_workout.update_one(myquery, new_current_people)
+                    collection_workout.update_one(myquery, new_participants)
                     return jsonify({'result':'success', 'msg':'모임 참여를 취소하였습니다.'})
                 except Exception as e:
                         print(f"Error join Workout: {e}")
