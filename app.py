@@ -122,8 +122,8 @@ def registerWorkout():
         new_workout = {
             'workout_idx': Util.get_next_sequence('workout', 'workout_idx'),
             'host_user_idx': user_idx_receive, 
-            'host_user_name': Util.getHostUserName(user_idx_receive),
-            'host_user_class': Util.getHostUserClass(user_idx_receive),
+            'host_user_name': Util.getUserName(user_idx_receive),
+            'host_user_class': Util.getUserClass(user_idx_receive),
             'title': title_receive, 
             'place': place_receive, 
             'time': time_receive, 

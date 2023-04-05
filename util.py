@@ -22,14 +22,14 @@ class Util:
             return "https://cdn.huffingtonpost.kr/news/photo/201512/18818_36342.jpeg"
 
     # 유저 반 정보 가져오기
-    def getHostUserClass(userIdx):
-        result = db['users'].find_one({'user_idx': userIdx})
-        return result['user_class']
+    def getUserClass(userIdx):
+        user = db['users'].find_one({'user_idx': userIdx})
+        return user['user_class']
     
     # 유저 이름 정보 가져오기
-    def getHostUserName(userIdx):
-        result = db['users'].find_one({'user_idx': userIdx})
-        return result['user_name']
+    def getUserName(userIdx):
+        user = db['users'].find_one({'user_idx': userIdx})
+        return user['user_name']
         
         
 
