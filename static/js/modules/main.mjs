@@ -96,7 +96,7 @@ class Main {
                             <p>
                                 <span style="background-color: ${item.host_user_class};">${item.host_user_name}</span>
                             </p>
-                            <p>${item.title}</p>
+                            <p>${item.title} ${isPaticipate ? "<span class='in-text'>🟢</span>" : ""}</p>
                             <p>${item.current_people}/${item.maximum}</p>
                         </div>
                         <div class="content-body">
@@ -108,10 +108,10 @@ class Main {
                                     <p>종목 : ${this.findCategory(item.category)}</p>
                                 </div>
                                 <div class="content-btn-wrap">
-                                    <button class="list-btn">목록</button>
-                                    ${user === item.host_user_idx ? "<button class='delete-btn'>삭제</button>" : ""}
-                                    ${user !== item.host_user_idx ? (isPaticipate ? "<button class='cancel-btn'>나가기</button>" : "<button class='join-btn'>참여</button>") : ""}
-                                </div>
+                                    <button style='background-color: #189bfa' class="list-btn">목록</button>
+                                    ${user === item.host_user_idx ? "<button style='background-color: red' class='delete-btn'>삭제</button>" : ""}
+                                    ${user !== item.host_user_idx ? (isPaticipate ? "<button style='background-color: green' class='cancel-btn'>나가기</button>" : "<button style='background-color: #189bfa' class='join-btn'>참여</button>") : ""}
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ class Main {
                                     <p>
                                         <span style="background-color: ${item.host_user_class};">${item.host_user_name}</span>
                                     </p>
-                                    <p>${item.title}</p>
+                                    <p>${item.title} ${isPaticipate ? "<span class='in-text'>🟢</span>" : ""}</p>
                                     <p>${item.current_people}/${item.maximum}</p>
                                 </div>
                                 <div class="content-body">
@@ -158,10 +158,10 @@ class Main {
                                             <p>종목 : ${this.findCategory(item.category)}</p>
                                         </div>
                                         <div class="content-btn-wrap">
-                                            <button class="list-btn">목록</button>
-                                            ${user === item.host_user_idx ? "<button class='delete-btn'>삭제</button>" : ""}
-                                            ${user !== item.host_user_idx ? (isPaticipate ? "<button class='cancel-btn'>나가기</button>" : "<button class='join-btn'>참여</button>") : ""}
-                                        </div>
+                                            <button style='background-color: #189bfa' class="list-btn">목록</button>
+                                            ${user === item.host_user_idx ? "<button style='background-color: red' class='delete-btn'>삭제</button>" : ""}
+                                            ${user !== item.host_user_idx ? (isPaticipate ? "<button style='background-color: green' class='cancel-btn'>나가기</button>" : "<button style='background-color: #189bfa' class='join-btn'>참여</button>") : ""}
+                                            </div>
                                     </div>
                                 </div>
                             </div>
