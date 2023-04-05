@@ -46,7 +46,7 @@ class Join {
             <button id="join-btn" class="btn">완료</button>
         </div>`;
 
-        $(".wrap").append(template);
+        $(".join-wrap").append(template);
     }
 
     loadEvents() {

@@ -6,7 +6,7 @@
 
 /* main */
 
-.wrap {
+.main-wrap {
     width: 100%;
     height: 100vh;
 }
@@ -99,12 +99,13 @@
 
 /* login */
 
-.wrap {
+.login-wrap {
     width: 100%;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .login-content {
@@ -174,7 +175,7 @@
 
 /* join */
 
-.wrap {
+.join-wrap {
     width: 100%;
     height: 100vh;
     display: flex;

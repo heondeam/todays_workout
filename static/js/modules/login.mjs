@@ -36,7 +36,7 @@ class Login {
             </div>
         </div>`;
 
-        $(".wrap").append(template);
+        $(".login-wrap").append(template);
     }
 
     loadEvents() {

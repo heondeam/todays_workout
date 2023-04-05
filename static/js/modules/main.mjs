@@ -72,7 +72,7 @@ class Main {
         </div>
         `;
 
-        $(".wrap").append(template);
+        $(".main-wrap").append(template);
     }
 
     loadEvents() {
