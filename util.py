@@ -1,20 +1,20 @@
+from pymongo import MongoClient
+
+client = MongoClient('localhost', 27017) 
+db = client.jungle  
 
 class Util:
-    ## 토큰 유효성 검사
-    # def checkTokenValidation(token, functionSuccess):
-    #     # 토큰이 유효할 경우
-    #     if token: 
-    #         try:
-    #             functionSuccess
-    #         # 토큰 관련 예외처리
-    #         except jwt.exceptions.ExpiredSignatureError:
-    #             return 'Token has expired', 401
-    #         except jwt.exceptions.InvalidTokenError:
-    #             return 'Invalid token', 401
-    #     # 토큰이 유효하지 않으면 
-    #     else:
-    #         return 'Token not found in headers', 401
+    # auto increment
+    def get_next_sequence(collection_name, field_name):
+        result = db['counters'].find_one_and_update(
+            {'_id': collection_name},
+            {'$inc': {field_name: 1}},
+            upsert=True,
+            return_document=True
+        )
+        return result[field_name]
 
+    # 카테고리 이미지 가져오기
     def getCategoryImageUrl(value):
         if value == 'soccer':
             return "https://img.freepik.com/premium-photo/vertical-shot-soccer-ball-with-player-s-legs-waiting-kick-it_755989-104.jpg?w=2000"
