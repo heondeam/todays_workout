@@ -26,7 +26,7 @@ def home():
     return render_template('main.html')
 
 ## 회원가입
-@app.route('/user/join', methods=['GET', 'POST'])
+@app.route('/join', methods=['GET', 'POST'])
 def join():
     if request.method == 'POST':
         id_receive = request.form['user_id']
@@ -53,7 +53,7 @@ def join():
         
 
 ## 로그인
-@app.route('/user/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         # 클라이언트로부터 데이터 받기
