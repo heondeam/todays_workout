@@ -59,6 +59,10 @@ class Main {
         $(".plus-btn").click(() => {
             this.showCreateModal();
         });
+
+        $(".home-btn").click(() => {
+            window.location.reload();
+        });
     }
 
     /**
