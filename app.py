@@ -34,6 +34,11 @@ def join():
         name_receive = request.form['user_name']
         class_receive = request.form['user_class']
 
+
+        # Check if the user ID already exists in the database
+        if collection_users.find_one({'user_id': id_receive}):
+            return jsonify({'result': 'fail', 'msg': '아이디가 이미 사용중입니다. 새로운 아이디를 입력해주세요.'})
+ 
         document = {
             'user_id': id_receive, 
             'user_pw': pw_receive, 
