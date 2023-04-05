@@ -19,7 +19,7 @@ class Main {
         let template = `
         <div class="nav-wrap">
             <div class="nav-image">
-                오우난오운완
+                오운완💪🏻
             </div>
             <div class="nav-menu">
                 <div class="nav-menu-item">
@@ -225,7 +225,10 @@ class Main {
 
                 try {
                     if(res.result === "success") {
+                        window.alert(res.msg);
                         window.location.reload();
+                    }else {
+                        window.alert(res.msg);
                     }
                 }catch(e) {
                     console.log(e);
