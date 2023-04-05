@@ -30,7 +30,7 @@ def home():
 @app.route('/workout', methods=['GET'])
 def getWorkouts():
     token = request.headers.get('Authorization')  # 토큰 정보 가져오기 
-    page_receive = int(request.form['page'])  # 페이지 정보 가져오기
+    page_receive = int(request.args.get('page'))  # 페이지 정보 가져오기
 
     # 토큰 검사
     if token:
