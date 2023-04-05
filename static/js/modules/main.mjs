@@ -71,41 +71,14 @@ class Main {
         const user = Number(this.http.getUserInfo());
         let workout = [];
         let isLoading = false;
-
-        $(window).on("scroll", async () => {
-            const bottomDistance = $(document).height() - $(window).height() - $(window).scrollTop();
-
-            if (bottomDistance < 50 && !isLoading) {
-                isLoading = true;
-
-                const res = await this.http.request("/workout", "GET", {
-                    "page": 2 // Load the next page of content
-                }, true);
-
-                if (res.result === "success") {
-                    res.workouts.forEach((item) => {
-                        let template = `
-                            <!-- Existing content template... -->
-                        `;
-                        $(".main-content-wrap").append(template);
-                    });
-                } else {
-                    window.alert(res.msg);
-                }
-
-                // Reset the flag to indicate that new content is not being loaded
-                isLoading = false;
-            }
-        });
-
+        let nowPage = 1;
 
         try {
-            // 피드 불러오기
             const res = await this.http.request("/workout", "GET", {
                 "page" : 1
             }, true);
 
-            if(res.result === "success") {
+            if(res.result === "success" && res.workouts.length > 0) {
                 workout = [];
 
                 res.workouts.forEach((item) => {
@@ -142,31 +115,85 @@ class Main {
 
                     $(".main-content-wrap").append(template);
                 });
+
+                nowPage++;
             }else {
-                window.alert(res.msg);
-            }
+                window.alert("모임방이 존재하지 않습니다!");
+            }         
 
-            // Add click event to parent element
-            $(".main-content-wrap").on("click", ".delete-btn, .join-btn, .list-btn, .cancel-btn", async function() {
-                const workoutId = $(this).closest(".main-content").attr("id").split("-")[1];
+            $(window).on("scroll", async () => {
+                const bottomDistance = $(document).height() - $(window).height() - $(window).scrollTop();
+    
+                if (bottomDistance < 50 && !isLoading) {
+                    isLoading = true;
+    
+                    const res = await this.http.request("/workout", "GET", {
+                        "page": nowPage // Load the next page of content
+                    }, true);
 
-                if ($(this).hasClass("delete-btn")) {
-                    // Call deleteWorkout function
-                    await deleteWorkout(workoutId);
-                } else if ($(this).hasClass("join-btn")) {
-                    // Call joinWorkout function
-                    await joinWorkout(workoutId);
-                } else if ($(this).hasClass("list-btn")) {
-                    // Call showListModal function
-                    await showListModal(workoutId);
-                } else if ($(this).hasClass("cancel-btn")) {
-                    // Call cancelWorkout
-                    await cancelWorkout(workoutId);
+                    if (res.result === "success" && res.workouts.length > 0) {
+                        res.workouts.forEach((item) => {
+                            let isPaticipate = item.participants.find(item => item.user_idx === user);
+        
+                            workout.push(item);
+                            let template = `
+                            <div id="${'workout-' + item.workout_idx}" class="main-content">
+                                <div class="content-header">
+                                    <p>
+                                        <span style="background-color: ${item.host_user_class};">${item.host_user_name}</span>
+                                    </p>
+                                    <p>${item.title}</p>
+                                    <p>${item.current_people}/${item.maximum}</p>
+                                </div>
+                                <div class="content-body">
+                                    <img class="content-img" src=${item.image_url}>
+                                    <div class="content-right">
+                                        <div class=content-text-wrap>
+                                            <p>장소 : ${item.place}</p>
+                                            <p>시간 : ${item.time}</p>
+                                            <p>종목 : ${item.category}</p>
+                                        </div>
+                                        <div class="content-btn-wrap">
+                                            <button class="list-btn">목록</button>
+                                            ${user === item.host_user_idx ? "<button class='delete-btn'>삭제</button>" : ""}
+                                            ${user !== item.host_user_idx ? (isPaticipate ? "<button class='cancel-btn'>나가기</button>" : "<button class='join-btn'>참여</button>") : ""}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                            $(".main-content-wrap").append(template);
+                        });
+
+                        isLoading = false;
+                        nowPage++;
+                    } else {
+                        return;
+                    }
                 }
             });
         }catch(e) {
             console.log(e);
         }
+
+        // Add click event to parent element
+        $(".main-content-wrap").on("click", ".delete-btn, .join-btn, .list-btn, .cancel-btn", async function() {
+            const workoutId = $(this).closest(".main-content").attr("id").split("-")[1];
+
+            if ($(this).hasClass("delete-btn")) {
+                // Call deleteWorkout function
+                await deleteWorkout(workoutId);
+            } else if ($(this).hasClass("join-btn")) {
+                // Call joinWorkout function
+                await joinWorkout(workoutId);
+            } else if ($(this).hasClass("list-btn")) {
+                // Call showListModal function
+                await showListModal(workoutId);
+            } else if ($(this).hasClass("cancel-btn")) {
+                // Call cancelWorkout
+                await cancelWorkout(workoutId);
+            }
+        });
 
         // 모임 삭제 (바인딩)
         const deleteWorkout = async (idx) => {
@@ -273,7 +300,6 @@ class Main {
         const hideListModal = () => {
             $(".list-modal-wrap").remove();
         }
-
     }
 
     /**
