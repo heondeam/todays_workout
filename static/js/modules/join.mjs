@@ -87,21 +87,12 @@ class Join {
             return;
         }
 
-
-        // if(!this.checkUserId(userInfo.user_id)) { 
-        //     $(".valid-id").show();
-        //     return;    
-        // }else {
-        //     $(".valid-id").hide();
-        // }
-
         if(userInfo.user_pw !== $("#user-pw-confirm").val()) {
             $(".valid-pw").show();
             return;
         }else {
             $(".valid-pw").hide();
         }
-
 
         try { 
             const res = await this.http.request("join", "POST", {
@@ -111,6 +102,7 @@ class Join {
             if(res.result === "success") {
                 window.alert("회원가입 성공!");
                 this.handleToken(res.token);
+                this.handleUserInfo(res.user_idx);
                 location.replace("/");
             }else {
                 window.alert(res.msg);
@@ -148,6 +140,17 @@ class Join {
             sessionStorage.setItem("token", token);
         }
     }
+
+    /**
+     * 
+     * @param idx 
+     */
+    handleUserInfo(idx) {
+        const isExist = Number(JSON.parse(localStorage.getItem("info"))) > 0 ? true : false;
+        
+        if(isExist) localStorage.clear();
+        localStorage.setItem("info", JSON.stringify({"user_idx" : idx}));
+    }    
 }
 
 export default Join;
