@@ -105,7 +105,7 @@ class Main {
                                 <div class=content-text-wrap>
                                     <p>장소 : ${item.place}</p>
                                     <p>시간 : ${item.time}</p>
-                                    <p>종목 : ${item.category}</p>
+                                    <p>종목 : ${this.findCategory(item.category)}</p>
                                 </div>
                                 <div class="content-btn-wrap">
                                     <button class="list-btn">목록</button>
@@ -155,7 +155,7 @@ class Main {
                                         <div class=content-text-wrap>
                                             <p>장소 : ${item.place}</p>
                                             <p>시간 : ${item.time}</p>
-                                            <p>종목 : ${item.category}</p>
+                                            <p>종목 : ${this.findCategory(item.category)}</p>
                                         </div>
                                         <div class="content-btn-wrap">
                                             <button class="list-btn">목록</button>
@@ -446,6 +446,23 @@ class Main {
      */
     hideCreateModal() {
         $(".modal-wrap").remove();
+    }
+
+    findCategory(category) {
+        switch(category) {
+            case "football":
+                return "축구";
+            case "basketball":
+                return "농구";
+            case "walk":
+                return "산책";
+            case "running":
+                return "러닝";
+            case "badminton":
+                return "배드민턴";
+            case "weight":
+                return "웨이트 트레이닝"    
+        }
     }
 }
 
