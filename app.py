@@ -135,5 +135,23 @@ def registerWorkout():
     else:
         return 'Token not found in headers', 401                                                                                                                                                                                         
 
+
+## 모임 삭제
+@app.route('/workout', methods=['DELETE'])
+def removeWorkout():
+    workout_idx_receive = request.form['workout_idx']
+    token = request.headers.get('Authorization') 
+
+    if token:
+        try:
+            collection_workout.delete_one({'workout_idx': int(workout_idx_receive)})
+            return jsonify({'result': 'success'})
+        except Exception as e:
+            print(f"Error remove Workout: {e}")
+            return jsonify({'result': 'fail', 'msg': e})
+    else:
+        return 'Token not found in headers', 401
+
+
 if __name__ == '__main__':  
    app.run('0.0.0.0',port=8000,debug=True)
