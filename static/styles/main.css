@@ -1,7 +1,11 @@
-
 @font-face {
     font-family: 'Permanent';
     src: url("../assets/fonts/PermanentMarker-Regular.ttf");
+}
+
+@font-face {
+    font-family: 'Custom';
+    src: url("../assets/fonts/NanumGothic-Regular.ttf");
 }
 
 /* main */
@@ -9,6 +13,8 @@
 .main-wrap {
     width: 100%;
     height: 100vh;
+    font-family: 'Custom';
+    font-weight: normal;
 }
 
 .main-content-wrap {
@@ -396,6 +402,7 @@
 }
 
 .list-modal-body {
+    width: 100%;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
@@ -405,6 +412,7 @@
 .participants-name {
     width: 5rem; 
     padding: 0.625rem 0;
+    margin-left: 0.2rem;
     text-align: center;
     font-size: 1.25rem;
     margin-bottom: 1.25rem;

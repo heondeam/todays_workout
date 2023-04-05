@@ -67,121 +67,43 @@ class Main {
     async loadFeed() {
         $(".main-content-wrap").empty();
 
-        try {
-            // user idx find
-            const user = Number(this.http.getUserInfo());
-            let workout = [];
+        // user idx find
+        const user = Number(this.http.getUserInfo());
+        let workout = [];
+        let isLoading = false;
 
+        $(window).on("scroll", async () => {
+            const bottomDistance = $(document).height() - $(window).height() - $(window).scrollTop();
+
+            if (bottomDistance < 50 && !isLoading) {
+                isLoading = true;
+
+                const res = await this.http.request("/workout", "GET", {
+                    "page": 2 // Load the next page of content
+                }, true);
+
+                if (res.result === "success") {
+                    res.workouts.forEach((item) => {
+                        let template = `
+                            <!-- Existing content template... -->
+                        `;
+                        $(".main-content-wrap").append(template);
+                    });
+                } else {
+                    window.alert(res.msg);
+                }
+
+                // Reset the flag to indicate that new content is not being loaded
+                isLoading = false;
+            }
+        });
+
+
+        try {
             // 피드 불러오기
             const res = await this.http.request("/workout", "GET", {
                 "page" : 1
             }, true);
-
-            // 모임 삭제 (바인딩)
-            const deleteWorkout = async (idx) => {
-                if(window.confirm("해당 모임을 삭제하시겠습니까?")) {
-                    const res = await this.http.request("/workout", "DELETE", {
-                        workout_idx: idx
-                    }, true);
-    
-                    try {
-                        if(res.result === "success") {
-                            window.alert("성공적으로 삭제되었습니다.");
-                            window.location.reload();
-                        }else {
-                            window.alert(res.msg)
-                        }
-                    } catch(e) {
-                        console.log(e);
-                    }
-                }
-            }
-
-            // 참여 기능
-            const joinWorkout = async (idx) => {
-                if(window.confirm("해당 모임에 참여하시겠습니까?")) {
-                    const res = await this.http.request("/workout/join", "POST", {
-                        user_idx: user,
-                        workout_idx: idx
-                    }, true);
-
-                    try {
-                        if(res.result === "success") {
-                            window.location.reload();
-                        }
-                    }catch(e) {
-                        console.log(e);
-                    }
-                    
-                }
-            }
-
-            // 참여 취소 기능
-            const cancelWorkout = async (idx) => {
-                if(window.confirm("해당 모임에서 나가시시겠습니까?")) {
-                    const res = await this.http.request("/workout/join", "DELETE", {
-                        user_idx: user,
-                        workout_idx: idx
-                    }, true);
-
-                    try {
-                        if(res.result === "success") {
-                            window.location.reload();
-                        }
-                    }catch(e) {
-                        console.log(e);
-                    }
-                    
-                }
-            }
-
-            /**
-             * 참여자 목록 모달 생성
-             */
-            const showListModal = (idx) => {
-                const selectedData = workout.find(item => item.workout_idx == idx);
-
-                const isShow = [...$(".main-content-wrap").children()].some((child) => {
-                    if(child.className === "list-modal-wrap") {
-                        return true;
-                    }
-                });
-        
-                let template = `
-                <div class="list-modal-wrap">
-                    <div class="modal-header">
-                        참여자 목록
-                    </div>
-                    <div class="list-modal-body"></div>
-                    <div class="list-modal-footer">
-                        <button class="dismiss-btn">닫기</button>
-                    </div>
-                </div>
-                `;
-        
-                if(isShow) {
-                    this.isShow = false;
-                    hideListModal();
-                }else {
-                    this.isShow = true;
-        
-                    $(".main-content-wrap").append(template);
-
-                    selectedData.participants.forEach(item => {
-                        $(".list-modal-body").append(
-                            `<div style="background-color: ${item.user_class}" class="participants-name">${item.user_name}</div>`
-                        )
-                    })
-                    
-                    $(".dismiss-btn").click(() => {
-                        hideListModal();
-                    });
-                }
-            }            
-
-            const hideListModal = () => {
-                $(".list-modal-wrap").remove();
-            }
 
             if(res.result === "success") {
                 workout = [];
@@ -245,6 +167,113 @@ class Main {
         }catch(e) {
             console.log(e);
         }
+
+        // 모임 삭제 (바인딩)
+        const deleteWorkout = async (idx) => {
+            if(window.confirm("해당 모임을 삭제하시겠습니까?")) {
+                const res = await this.http.request("/workout", "DELETE", {
+                    workout_idx: idx
+                }, true);
+
+                try {
+                    if(res.result === "success") {
+                        window.alert("성공적으로 삭제되었습니다.");
+                        window.location.reload();
+                    }else {
+                        window.alert(res.msg)
+                    }
+                } catch(e) {
+                    console.log(e);
+                }
+            }
+        }
+
+        // 참여 기능
+        const joinWorkout = async (idx) => {
+            if(window.confirm("해당 모임에 참여하시겠습니까?")) {
+                const res = await this.http.request("/workout/join", "POST", {
+                    user_idx: user,
+                    workout_idx: idx
+                }, true);
+
+                try {
+                    if(res.result === "success") {
+                        window.location.reload();
+                    }
+                }catch(e) {
+                    console.log(e);
+                }
+                
+            }
+        }
+
+        // 참여 취소 기능
+        const cancelWorkout = async (idx) => {
+            if(window.confirm("해당 모임에서 나가시시겠습니까?")) {
+                const res = await this.http.request("/workout/join", "DELETE", {
+                    user_idx: user,
+                    workout_idx: idx
+                }, true);
+
+                try {
+                    if(res.result === "success") {
+                        window.location.reload();
+                    }
+                }catch(e) {
+                    console.log(e);
+                }
+                
+            }
+        }
+
+        /**
+         * 참여자 목록 모달 생성
+         */
+        const showListModal = (idx) => {
+            const selectedData = workout.find(item => item.workout_idx == idx);
+
+            const isShow = [...$(".main-content-wrap").children()].some((child) => {
+                if(child.className === "list-modal-wrap") {
+                    return true;
+                }
+            });
+    
+            let template = `
+            <div class="list-modal-wrap">
+                <div class="modal-header">
+                    참여자 목록
+                </div>
+                <div class="list-modal-body"></div>
+                <div class="list-modal-footer">
+                    <button class="dismiss-btn">닫기</button>
+                </div>
+            </div>
+            `;
+    
+            if(isShow) {
+                this.isShow = false;
+                hideListModal();
+            }else {
+                this.isShow = true;
+    
+                $(".main-content-wrap").append(template);
+
+                selectedData.participants.forEach(item => {
+                    $(".list-modal-body").append(
+                        `<div style="background-color: ${item.user_class}" class="participants-name">${item.user_name}</div>`
+                    )
+                })
+                
+                $(".dismiss-btn").click(() => {
+                    hideListModal();
+                });
+            }
+        }            
+
+        const hideListModal = () => {
+            $(".list-modal-wrap").remove();
+        }
+
     }
 
     /**
