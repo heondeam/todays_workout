@@ -166,7 +166,7 @@ def removeWorkout():
         return 'Token not found in headers', 401
 
 
-#모임 참가&취소
+#모임 참가/취소
 @app.route('/workout/join', methods=['POST', 'DELETE'])
 def joinOrExitWorkout():
     workout_idx_receive = int(request.form['workout_idx'])
@@ -178,17 +178,15 @@ def joinOrExitWorkout():
 
     # 토큰이 유효할 경우
     if token:
-        workout = collection_workout.find_one({'workout_idx': workout_idx_receive})
         myquery = {"workout_idx": workout_idx_receive}
+        workout = collection_workout.find_one({'workout_idx': workout_idx_receive})
 
         participants = workout['participants']  
-        print(participants)
         current_people = workout['current_people']
         maximum = workout['maximum']
 
         #참여하기
         if request.method == 'POST':
-            # 최대인원을 넘지는 않는지 체크
             if current_people <= (maximum - 1):
                 new_current_people = {
                     "$set" : { "current_people" : current_people + 1 }
@@ -204,45 +202,30 @@ def joinOrExitWorkout():
                         ] 
                     }
                 }
-                try:
-                    collection_workout.update_one(myquery, new_current_people)
-                    collection_workout.update_one(myquery, new_participants)
-                    return jsonify({'result':'success', 'msg':'모임에 참여하였습니다.'})
-                except Exception as e:
-                    print(f"Error join Workout: {e}")
-                    return jsonify({'result': 'fail', 'msg': e})
+                collection_workout.update_one(myquery,new_current_people)
+                collection_workout.update_one(myquery,new_participants)
+                return jsonify({'result':'success', 'msg':'모임에 참여하였습니다.'})
         
             else:
                 return jsonify({'result':'fail', 'msg':'현재 모임이 최대 인원에 도달하여서 참여하지 못하였습니다.'})    
             
         # 참여 취소 
         else:
-            #기존에 참여하고 있는지 체크
-            if {'user_idx': user_idx_receive, 'user_name': user_name, 'user_class': user_class} in participants:
+            if {'user_idx':user_idx_receive,'user_name': user_name, 'user_class': user_class} in participants:
                 new_current_people = {
                     "$set" : { "current_people" : current_people - 1 }
                 }
-
-                participants.remove(
+                new_participants = participants.remove(
                     {
                         'user_idx': user_idx_receive, 
                         'user_name': user_name,
                         'user_class': user_class,
                     }
-                ) 
-                new_participants = {
-                    "$set": { 
-                        "participants" : participants,
-                    }
-                }
+                )
                 print(new_participants)
-                try:
-                    collection_workout.update_one(myquery,new_current_people)
-                    collection_workout.update_one(myquery,new_participants)
-                    return jsonify({'result':'success', 'msg':'모임 참여를 취소하였습니다.'})
-                except Exception as e:
-                        print(f"Error join Workout: {e}")
-                        return jsonify({'result': 'fail', 'msg': e})
+                collection_workout.update_one(myquery,new_current_people)
+                collection_workout.update_one(myquery,new_participants)
+                return jsonify({'result':'success', 'msg':'모임 참여를 취소하였습니다.'})
         
             else:
                 return jsonify({'result':'fail', 'msg':'해당 모임에 참여하고 있지 않습니다.'})
