@@ -3,11 +3,6 @@ class HttpService {
     $rootUrl
     // http headers
     $headers
-    // token
-    set token(value) {
-        sessionStorage
-    }
-    tokenValue;
 
     constructor(url) {
         this.$rootUrl = `http://${url}`;
@@ -23,9 +18,14 @@ class HttpService {
      * @param data 
      * @returns 
      */
-    request(url, method, data) {
+    request(url, method, data, token) {
+        console.log(sessionStorage.getItem("token"));
+
         return $.ajax({
             type: method,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", sessionStorage.getItem("token"));
+            },
             url: url,
             data: data,
             dataType: "json"
@@ -46,10 +46,18 @@ class HttpService {
     }
 
     /**
+     * 유저 정보 얻기
+     */
+    getUserInfo() {
+        return JSON.parse(localStorage.getItem("info")).user_idx;
+    }
+
+    /**
      * 로그아웃
      */
     logout() {
         sessionStorage.clear();
+        localStorage.clear();
         window.location.replace("/login");
     }
 }

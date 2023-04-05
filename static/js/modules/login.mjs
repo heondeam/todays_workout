@@ -87,6 +87,7 @@ class Login {
 
             if(res.result === "success") {
                 this.handleToken(res.token);
+                this.handleUserInfo(res.user_idx);
                 location.replace("/");
             }else {
                 window.alert(res.msg);
@@ -99,7 +100,7 @@ class Login {
     /**
      * set token to sessionStorage
      */
-    handleToken (token) {
+    handleToken(token) {
         const isExist = sessionStorage.getItem("token");
 
         if(isExist) {
@@ -107,6 +108,13 @@ class Login {
         }else {
             sessionStorage.setItem("token", token);
         }
+    }
+
+    handleUserInfo(idx) {
+        const isExist = Number(JSON.parse(localStorage.getItem("info"))) > 0 ? true : false;
+        
+        if(isExist) localStorage.clear();
+        localStorage.setItem("info", JSON.stringify({"user_idx" : idx}));
     }
 }
 

@@ -14,6 +14,7 @@
 .main-content-wrap {
     height: auto;
     padding-left: 6.25rem;
+    padding-top: 1.25rem;
     overflow: hidden;
     display: flex;
     flex-flow: column nowrap;
@@ -26,6 +27,7 @@
     background: #fff;
     margin-bottom: 1.25rem;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 1.25rem;
 }
 
 /* navbar */
@@ -44,6 +46,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    color: #fff;
 }
 
 .nav-menu {
@@ -117,6 +120,18 @@
 
 .content-header > p:nth-child(1) {
     width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content-header > p:nth-child(1) > span {
+    color: #fff;
+    background-color: red;
+    display: block;
+    width: 3.5rem; height: 3.5rem;
+    line-height: 3.5rem;
+    border-radius: 100%;
 }
 
 .content-header > p:nth-child(2) {
@@ -137,6 +152,8 @@
 
 .content-img {
     width: 49%;
+    background-size: cover;
+    border-radius: 1.25rem;
 }
 
 .content-right {
@@ -203,6 +220,8 @@
     transform: translate(-50%, 0);
     font-size: 6.25rem;
     font-family: 'Permanent';
+    width:1200px;
+    text-align: center;
 }
 
 .login-text {
@@ -322,7 +341,7 @@
 /* Modal */
 
 .modal-wrap {
-    width: 37rem; height: 40rem; 
+    width: 37rem; height: auto; 
     padding: 1.25rem;
     position: fixed;
     z-index: 9;
