@@ -97,10 +97,10 @@ class Main {
                 }
             }
 
-            // 참여 기능 (바인딩)
-            const handleWorkout = async (status, idx) => {
+            // 참여 기능
+            const joinWorkout = async (idx) => {
                 if(window.confirm("해당 모임에 참여하시겠습니까?")) {
-                    const res = await this.http.request("/workout", "POST", {
+                    const res = await this.http.request("/workout/join", "POST", {
                         user_idx: user,
                         workout_idx: idx
                     }, true);
@@ -114,7 +114,25 @@ class Main {
                     }
                     
                 }
+            }
 
+            // 참여 취소 기능
+            const cancelWorkout = async (idx) => {
+                if(window.confirm("해당 모임에서 나가시시겠습니까?")) {
+                    const res = await this.http.request("/workout/join", "DELETE", {
+                        user_idx: user,
+                        workout_idx: idx
+                    }, true);
+
+                    try {
+                        if(res.result === "success") {
+                            window.location.reload();
+                        }
+                    }catch(e) {
+                        console.log(e);
+                    }
+                    
+                }
             }
 
             /**
@@ -134,11 +152,7 @@ class Main {
                     <div class="modal-header">
                         참여자 목록
                     </div>
-                    <div class="list-modal-body">
-                        ${selectedData.participants.map(item => {
-                            "<div class='participants-name'>" + item.user_name + "</div>"
-                        })}
-                    </div>
+                    <div class="list-modal-body"></div>
                     <div class="list-modal-footer">
                         <button class="dismiss-btn">닫기</button>
                     </div>
@@ -152,7 +166,13 @@ class Main {
                     this.isShow = true;
         
                     $(".main-content-wrap").append(template);
-        
+
+                    selectedData.participants.forEach(item => {
+                        $(".list-modal-body").append(
+                            `<div style="background-color: ${item.user_class}" class="participants-name">${item.user_name}</div>`
+                        )
+                    })
+                    
                     $(".dismiss-btn").click(() => {
                         hideListModal();
                     });
@@ -167,6 +187,8 @@ class Main {
                 workout = [];
 
                 res.workouts.forEach((item) => {
+                    let isPaticipate = item.participants.find(item => item.user_idx === user);
+
                     workout.push(item);
 
                     let template = `
@@ -189,7 +211,7 @@ class Main {
                                 <div class="content-btn-wrap">
                                     <button class="list-btn">목록</button>
                                     ${user === item.host_user_idx ? "<button class='delete-btn'>삭제</button>" : ""}
-                                    ${user !== item.host_user_idx ? "<button class='join-btn'>참여</button>" : ""}
+                                    ${user !== item.host_user_idx ? (isPaticipate ? "<button class='cancel-btn'>나가기</button>" : "<button class='join-btn'>참여</button>") : ""}
                                 </div>
                             </div>
                         </div>
@@ -203,7 +225,7 @@ class Main {
             }
 
             // Add click event to parent element
-            $(".main-content-wrap").on("click", ".delete-btn, .join-btn, .list-btn", async function() {
+            $(".main-content-wrap").on("click", ".delete-btn, .join-btn, .list-btn, .cancel-btn", async function() {
                 const workoutId = $(this).closest(".main-content").attr("id").split("-")[1];
 
                 if ($(this).hasClass("delete-btn")) {
@@ -211,10 +233,13 @@ class Main {
                     await deleteWorkout(workoutId);
                 } else if ($(this).hasClass("join-btn")) {
                     // Call joinWorkout function
-                    await handleWorkout(workoutId);
+                    await joinWorkout(workoutId);
                 } else if ($(this).hasClass("list-btn")) {
                     // Call showListModal function
                     await showListModal(workoutId);
+                } else if ($(this).hasClass("cancel-btn")) {
+                    // Call cancelWorkout
+                    await cancelWorkout(workoutId);
                 }
             });
         }catch(e) {

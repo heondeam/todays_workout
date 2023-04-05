@@ -403,11 +403,12 @@
 }
 
 .participants-name {
-    width: 30%; 
+    width: 5rem; 
     padding: 0.625rem 0;
     text-align: center;
     font-size: 1.25rem;
     margin-bottom: 1.25rem;
+    color: #fff;
 }
 
 .list-modal-footer > button {
