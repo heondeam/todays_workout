@@ -3,6 +3,8 @@ from flask import Flask, render_template, redirect, request, jsonify
 from flask_jwt_extended import *
 from pymongo import MongoClient
 
+from util import Util
+
 app = Flask(__name__)
 
 client = MongoClient('localhost', 27017) 
@@ -89,23 +91,46 @@ def registerWorkout():
     category_receive = request.form['category']
     maximum_receive = request.form['maximum']
 
-    document = {
-        'title': title_receive, 
-        'place': place_receive, 
-        'time': time_receive, 
-        'category': category_receive, 
-        'maximum': maximum_receive,
-        'current_people': 1,
-        # 'user_id': 
-    }
+    token = request.headers.get('') # 토큰 정보 가져오기 
+    
+    # 토큰이 유효할 경우
+    if token:
+        try:
+            # 토큰 decode
+            token_info = jwt.decode(token, algorithms=['HS256'])
+            # 유저 id 가져오기
+            host_user_id_receive = token_info.get('user_id')
 
-    try:
-        collection_workout.insert_one(document)
-        return jsonify({'result': 'success'})
-    except Exception as e:
-        print(f"Error register Workout: {e}")
-        return jsonify({'result': 'fail', 'msg': e})
+            # 유저 id가 존재할 경우 
+            if host_user_id_receive:
+                document = {
+                    'title': title_receive, 
+                    'place': place_receive, 
+                    'time': time_receive, 
+                    'category': category_receive, 
+                    'image_url': Util.getCategoryImageUrl(category_receive),
+                    'maximum': maximum_receive,
+                    'host_user_id': host_user_id_receive,
+                    'current_people': 1,
+                    'participants': [],
+                }
+                try:
+                    collection_workout.insert_one(document)
+                    return jsonify({'result': 'success'})
+                except Exception as e:
+                    print(f"Error register Workout: {e}")
+                    return jsonify({'result': 'fail', 'msg': e})
+            else:
+                return 'User ID not found in token', 401
 
+        # 토큰 관련 예외처리
+        except jwt.exceptions.ExpiredSignatureError:
+            return 'Token has expired', 401
+        except jwt.exceptions.InvalidTokenError:
+            return 'Invalid token', 401
+    # 토큰이 유효하지 않으면 
+    else:
+        return 'Token not found in headers', 401                                                                                                                                                                                         
 
 if __name__ == '__main__':  
    app.run('0.0.0.0',port=8000,debug=True)
