@@ -110,10 +110,6 @@
     margin-bottom: 20px;
 }
 
-.login-image {
-
-}
-
 .login-text {
     height: 6.25rem;
     line-height: 6.25rem;
@@ -211,6 +207,7 @@
 }
 
 .valid-text {
+    display: none;
     width: 100%;
     text-align: left;
     margin-top: 0.75rem;
