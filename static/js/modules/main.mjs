@@ -6,9 +6,7 @@ class Main {
     constructor(httpService) {
         this.http = httpService;
 
-        if(this.checkToken()) {
-            this.render();
-        }
+        this.render();
     }
 
     render() {

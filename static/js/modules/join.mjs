@@ -7,10 +7,8 @@ class Join {
     constructor(httpService) {
         this.http = httpService;
 
-        if(this.checkToken()) {
-            this.render();
-            this.loadEvents();
-        }
+        this.render();
+        this.loadEvents();
     }
 
     render() {

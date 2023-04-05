@@ -1,3 +1,9 @@
+
+@font-face {
+    font-family: 'Permanent';
+    src: url("../assets/fonts/PermanentMarker-Regular.ttf");
+}
+
 /* main */
 
 .wrap {
@@ -108,6 +114,14 @@
 .login-header {
     text-align: center;
     margin-bottom: 20px;
+}
+
+.login-head-text {
+    position: absolute;
+    top: 9rem; left: 50%;
+    transform: translate(-50%, 0);
+    font-size: 6.25rem;
+    font-family: 'Permanent';
 }
 
 .login-text {

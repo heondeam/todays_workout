@@ -6,19 +6,17 @@ class Login {
     constructor(httpService) {
         this.http = httpService;
 
-        if(this.checkToken()) {
-            this.render();
-            this.loadEvents();
-        }
+        this.render();
+        this.loadEvents();
     }
 
     render() {
         let template = `
+        <div class="login-head-text">
+            Today's Workout
+        </div>
         <div class="login-content">
             <div class="login-header">
-                <div class="login-image">
-                    이미지
-                </div>
                 <div class="login-text">
                     오우난오운완💪🏻
                 </div>
@@ -100,6 +98,19 @@ class Login {
             return false;
         }else {
             return true;
+        }
+    }
+
+    /**
+     * set token to sessionStorage
+     */
+    handleToken (token) {
+        const isExist = sessionStorage.getItem("token");
+
+        if(isExist) {
+            sessionStorage.removeItem("token");
+        }else {
+            sessionStorage.setItem("token", token);
         }
     }
 }
