@@ -29,13 +29,21 @@ def home():
 # 모임 리스트 조회 
 @app.route('/workout', methods=['GET'])
 def getWorkouts():
-    token = request.headers.get('Authorization') # 토큰 정보 가져오기 
+    token = request.headers.get('Authorization')  # 토큰 정보 가져오기 
+    page_receive = int(request.form['page'])  # 페이지 정보 가져오기
 
     # 토큰 검사
     if token:
         workouts = list(collection_workout.find({}, {'_id': 0}))
-        totalElements = len(workouts)
-        return jsonify({'result': 'success', 'totalElements': totalElements, 'workouts': workouts})
+
+        # 무한 스크롤 처리 - 3개씩 끊어서 index 범위 나누기, 해당 범위에 item이 없을 경우 빈 리스트 리턴
+        start_index = 0 + ((page_receive - 1) * 3)
+        end_index = 3 + ((page_receive - 1) * 3)
+        page_items = workouts[start_index:end_index]
+
+        totalElements = len(page_items)
+
+        return jsonify({'result': 'success', 'totalElements': totalElements, 'workouts': page_items})
     else:
         return 'Token not found in headers', 401  
         
@@ -100,12 +108,12 @@ def login():
 ## 모임 개설
 @app.route('/workout/register', methods=['POST'])
 def registerWorkout():
-    user_idx_receive = request.form['user_idx']
+    user_idx_receive = int(request.form['user_idx'])
     title_receive = request.form['title']
     place_receive = request.form['place']
     time_receive = request.form['time']
     category_receive = request.form['category']
-    maximum_receive = request.form['maximum']
+    maximum_receive = int(request.form['maximum'])
 
     token = request.headers.get('Authorization') # 토큰 정보 가져오기 
     
@@ -113,15 +121,15 @@ def registerWorkout():
     if token:
         new_workout = {
             'workout_idx': Util.get_next_sequence('workout', 'workout_idx'),
-            'host_user_idx': int(user_idx_receive), #int로 치환
-            'host_user_name': Util.getHostUserName(int(user_idx_receive)),
-            'host_user_class': Util.getHostUserClass(int(user_idx_receive)),
+            'host_user_idx': user_idx_receive, 
+            'host_user_name': Util.getHostUserName(user_idx_receive),
+            'host_user_class': Util.getHostUserClass(user_idx_receive),
             'title': title_receive, 
             'place': place_receive, 
             'time': time_receive, 
             'category': category_receive, 
             'image_url': Util.getCategoryImageUrl(category_receive),
-            'maximum': int(maximum_receive), #int로 치환
+            'maximum': maximum_receive, 
             'current_people': 1,
             'participants': [],
         }
@@ -139,12 +147,12 @@ def registerWorkout():
 ## 모임 삭제
 @app.route('/workout', methods=['DELETE'])
 def removeWorkout():
-    workout_idx_receive = request.form['workout_idx']
+    workout_idx_receive = int(request.form['workout_idx'])
     token = request.headers.get('Authorization') 
 
     if token:
         try:
-            collection_workout.delete_one({'workout_idx': int(workout_idx_receive)})
+            collection_workout.delete_one({'workout_idx': workout_idx_receive})
             return jsonify({'result': 'success'})
         except Exception as e:
             print(f"Error remove Workout: {e}")
