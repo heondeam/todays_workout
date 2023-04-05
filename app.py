@@ -26,6 +26,20 @@ jwt = JWTManager(app)
 def home():
     return render_template('main.html')
 
+# 모임 리스트 조회 
+@app.route('/workout', methods=['GET'])
+def getWorkouts():
+    token = request.headers.get('Authorization') # 토큰 정보 가져오기 
+
+    # 토큰 검사
+    if token:
+        workouts = list(collection_workout.find({}, {'_id': 0}))
+        totalElements = len(workouts)
+        return jsonify({'result': 'success', 'totalElements': totalElements, 'workouts': workouts})
+    else:
+        return 'Token not found in headers', 401  
+        
+
 ## 회원가입
 @app.route('/join', methods=['GET', 'POST'])
 def join():
@@ -93,19 +107,20 @@ def registerWorkout():
     category_receive = request.form['category']
     maximum_receive = request.form['maximum']
 
-    token = request.headers.get('token') # 토큰 정보 가져오기 
+    token = request.headers.get('Authorization') # 토큰 정보 가져오기 
     
     # 토큰이 유효할 경우
     if token:
         new_workout = {
             'workout_idx': Util.get_next_sequence('workout', 'workout_idx'),
-            'host_user_idx': user_idx_receive,
+            'host_user_idx': int(user_idx_receive), #int로 치환
+            'host_user_class': Util.getHostUserClass(int(user_idx_receive)),
             'title': title_receive, 
             'place': place_receive, 
             'time': time_receive, 
             'category': category_receive, 
             'image_url': Util.getCategoryImageUrl(category_receive),
-            'maximum': maximum_receive,
+            'maximum': int(maximum_receive), #int로 치환
             'current_people': 1,
             'participants': [],
         }
