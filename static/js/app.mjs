@@ -11,8 +11,6 @@ let main;
  * user page checkToken
  */
 const checkTokenUser = () => {
-    console.log("is run?")
-
     const isExist = sessionStorage.getItem("token");
 
     if(isExist) {

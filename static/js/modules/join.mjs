@@ -11,6 +11,9 @@ class Join {
         this.loadEvents();
     }
 
+    /**
+     * 기본 템플릿 렌더
+     */
     render() {
         let template = `
         <div class="join-content">
@@ -49,12 +52,14 @@ class Join {
         $(".join-wrap").append(template);
     }
 
+    /**
+     * 이벤트 바인딩
+     */
     loadEvents() {
         $("#join-btn").click(() => {
             this.join();
         });
     }
-
 
     /**
      * 회원가입
@@ -142,7 +147,7 @@ class Join {
     }
 
     /**
-     * 
+     * 로그인 정보 저장
      * @param idx 
      */
     handleUserInfo(idx) {

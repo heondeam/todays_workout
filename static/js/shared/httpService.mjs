@@ -19,12 +19,10 @@ class HttpService {
      * @returns 
      */
     request(url, method, data, token) {
-        console.log(sessionStorage.getItem("token"));
-
         return $.ajax({
             type: method,
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", sessionStorage.getItem("token"));
+                if(token) {xhr.setRequestHeader("Authorization", sessionStorage.getItem("token"));}
             },
             url: url,
             data: data,

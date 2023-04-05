@@ -10,6 +10,9 @@ class Login {
         this.loadEvents();
     }
 
+    /**
+     * 기본 템플릿 렌더
+     */
     render() {
         let template = `
         <div class="login-head-text">
@@ -39,6 +42,9 @@ class Login {
         $(".login-wrap").append(template);
     }
 
+    /**
+     * 이벤트 바인딩
+     */
     loadEvents() {
         $("#login-btn").click(() => { 
             this.login(); 
@@ -110,6 +116,10 @@ class Login {
         }
     }
 
+    /**
+     * 로그인 정보 저장
+     * @param idx 
+     */
     handleUserInfo(idx) {
         const isExist = Number(JSON.parse(localStorage.getItem("info"))) > 0 ? true : false;
         

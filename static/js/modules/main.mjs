@@ -12,6 +12,9 @@ class Main {
         this.loadFeed();
     }
 
+    /**
+     * 기본 템플릿 렌더
+     */
     render() {
         let template = `
         <div class="nav-wrap">
@@ -41,8 +44,10 @@ class Main {
         $(".main-wrap").append(template);
     }
 
+    /**
+     * 이벤트 바인딩
+     */
     loadEvents() {
-   
         // 로그아웃
         $(".logout-btn").click(() => {
             if(window.confirm("로그아웃 하시겠습니까?")) {
@@ -54,28 +59,121 @@ class Main {
         $(".plus-btn").click(() => {
             this.showCreateModal();
         });
-
     }
 
     /**
-     * 피드 불러오기
+     * 피드 불러오기 (무한 스크롤)
      */
     async loadFeed() {
         $(".main-content-wrap").empty();
 
         try {
+            // user idx find
             const user = Number(this.http.getUserInfo());
-            const res = await this.http.request("/workout", "GET");
+            let workout = [];
+
+            // 피드 불러오기
+            const res = await this.http.request("/workout", "GET", {
+                "page" : 1
+            }, true);
+
+            // 모임 삭제 (바인딩)
+            const deleteWorkout = async (idx) => {
+                if(window.confirm("해당 모임을 삭제하시겠습니까?")) {
+                    const res = await this.http.request("/workout", "DELETE", {
+                        workout_idx: idx
+                    }, true);
+    
+                    try {
+                        if(res.result === "success") {
+                            window.alert("성공적으로 삭제되었습니다.");
+                            window.location.reload();
+                        }else {
+                            window.alert(res.msg)
+                        }
+                    } catch(e) {
+                        console.log(e);
+                    }
+                }
+            }
+
+            // 참여 기능 (바인딩)
+            const handleWorkout = async (status, idx) => {
+                if(window.confirm("해당 모임에 참여하시겠습니까?")) {
+                    const res = await this.http.request("/workout", "POST", {
+                        user_idx: user,
+                        workout_idx: idx
+                    }, true);
+
+                    try {
+                        if(res.result === "success") {
+                            window.location.reload();
+                        }
+                    }catch(e) {
+                        console.log(e);
+                    }
+                    
+                }
+
+            }
+
+            /**
+             * 참여자 목록 모달 생성
+             */
+            const showListModal = (idx) => {
+                const selectedData = workout.find(item => item.workout_idx == idx);
+
+                const isShow = [...$(".main-content-wrap").children()].some((child) => {
+                    if(child.className === "list-modal-wrap") {
+                        return true;
+                    }
+                });
+        
+                let template = `
+                <div class="list-modal-wrap">
+                    <div class="modal-header">
+                        참여자 목록
+                    </div>
+                    <div class="list-modal-body">
+                        ${selectedData.participants.map(item => {
+                            "<div class='participants-name'>" + item.user_name + "</div>"
+                        })}
+                    </div>
+                    <div class="list-modal-footer">
+                        <button class="dismiss-btn">닫기</button>
+                    </div>
+                </div>
+                `;
+        
+                if(isShow) {
+                    this.isShow = false;
+                    hideListModal();
+                }else {
+                    this.isShow = true;
+        
+                    $(".main-content-wrap").append(template);
+        
+                    $(".dismiss-btn").click(() => {
+                        hideListModal();
+                    });
+                }
+            }            
+
+            const hideListModal = () => {
+                $(".list-modal-wrap").remove();
+            }
 
             if(res.result === "success") {
-                const data = res.data
+                workout = [];
 
                 res.workouts.forEach((item) => {
+                    workout.push(item);
+
                     let template = `
-                    <div id="workout-${item.host_user_idx}" class="main-content">
+                    <div id="${'workout-' + item.workout_idx}" class="main-content">
                         <div class="content-header">
                             <p>
-                                <span>${item.host_user_name}</span>
+                                <span style="background-color: ${item.host_user_class};">${item.host_user_name}</span>
                             </p>
                             <p>${item.title}</p>
                             <p>${item.current_people}/${item.maximum}</p>
@@ -90,7 +188,8 @@ class Main {
                                 </div>
                                 <div class="content-btn-wrap">
                                     <button class="list-btn">목록</button>
-                                    ${user == item.host_user_idx ? "<button class='delete-btn'>삭제</button>" :  "<button class='join-btn'>참여</button>"}
+                                    ${user === item.host_user_idx ? "<button class='delete-btn'>삭제</button>" : ""}
+                                    ${user !== item.host_user_idx ? "<button class='join-btn'>참여</button>" : ""}
                                 </div>
                             </div>
                         </div>
@@ -102,6 +201,22 @@ class Main {
             }else {
                 window.alert(res.msg);
             }
+
+            // Add click event to parent element
+            $(".main-content-wrap").on("click", ".delete-btn, .join-btn, .list-btn", async function() {
+                const workoutId = $(this).closest(".main-content").attr("id").split("-")[1];
+
+                if ($(this).hasClass("delete-btn")) {
+                    // Call deleteWorkout function
+                    await deleteWorkout(workoutId);
+                } else if ($(this).hasClass("join-btn")) {
+                    // Call joinWorkout function
+                    await handleWorkout(workoutId);
+                } else if ($(this).hasClass("list-btn")) {
+                    // Call showListModal function
+                    await showListModal(workoutId);
+                }
+            });
         }catch(e) {
             console.log(e);
         }
@@ -150,7 +265,6 @@ class Main {
             return;
         }
 
-
         try {
             const res = await this.http.request("workout/register", "POST", {
                 ...workout
@@ -167,7 +281,7 @@ class Main {
     }
 
     /**
-     * 모달창 생성
+     * 모임 생성 모달창 생성
      */
     showCreateModal() {
         const isShow = [...$(".main-content-wrap").children()].some((child) => {
@@ -240,6 +354,9 @@ class Main {
         }
     }
 
+    /**
+     * 모임 생성 모달창 숨김
+     */
     hideCreateModal() {
         $(".modal-wrap").remove();
     }
