@@ -47,6 +47,18 @@ class Login {
         $("#join-btn").click(() => {
             window.location.replace("/join");
         });
+
+        $("#user-id").keydown((e) => {
+            if(e.keyCode === 13) {
+                this.login();
+            }
+        });
+
+        $("#user-pw").keydown((e) => {
+            if(e.keyCode === 13) {
+                this.login();
+            }
+        });
     }
 
     /**
@@ -74,7 +86,6 @@ class Login {
             });
 
             if(res.result === "success") {
-                console.log("로그인 성공!");
                 this.handleToken(res.token);
                 location.replace("/");
             }else {
@@ -82,22 +93,6 @@ class Login {
             }
         }catch (e) {
             console.log(e);
-        }
-    }
-
-    /**
-     * 토큰 검증
-     */
-    checkToken() {
-        const isExist = sessionStorage.getItem("token");
-
-        if(isExist) {
-            window.alert("이미 로그인되어 있습니다!!");
-            window.location.replace("/");
-
-            return false;
-        }else {
-            return true;
         }
     }
 

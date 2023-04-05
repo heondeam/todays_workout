@@ -3,6 +3,11 @@ class HttpService {
     $rootUrl
     // http headers
     $headers
+    // token
+    set token(value) {
+        sessionStorage
+    }
+    tokenValue;
 
     constructor(url) {
         this.$rootUrl = `http://${url}`;
@@ -38,6 +43,14 @@ class HttpService {
         }else {
             return false;
         }
+    }
+
+    /**
+     * 로그아웃
+     */
+    logout() {
+        sessionStorage.clear();
+        window.location.replace("/login");
     }
 }
 

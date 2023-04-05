@@ -137,22 +137,6 @@ class Join {
     }    
 
     /**
-     * 토큰 검증
-     */
-    checkToken() {
-        const isExist = sessionStorage.getItem("token");
-
-        if(isExist) {
-            window.alert("이미 로그인되어 있습니다!!");
-            window.location.replace("/");
-
-            return false;
-        }else {
-            return true;
-        }
-    }
-
-    /**
      * set token to sessionStorage
      */
     handleToken (token) {

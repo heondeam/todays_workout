@@ -44,14 +44,14 @@ const checkTokenMain = () => {
 
 $(document).ready(() => {
     if(window.location.pathname === "/login") {
-        if(checkTokenUser()) {
+        if(checkTokenUser() && !login) {
             login = new Login(new HttpService("localhost:5000"));
         }
-    }else if(window.location.pathname === "/join") {
+    }else if(window.location.pathname === "/join" && !join) {
         if(checkTokenUser()) {
             join = new Join(new HttpService("localhost:5000"));
         }
-    }else if(window.location.pathname === "/") {
+    }else if(window.location.pathname === "/" &&  !main) {
         if(checkTokenMain()) {
             main = new Main(new HttpService("localhost:5000"));
         }
