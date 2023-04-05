@@ -119,11 +119,6 @@ def registerWorkout():
     
     # 토큰이 유효할 경우
     if token:
-        participants_host = {
-            'user_idx': user_idx_receive, 
-            'user_name': Util.getUserName(user_idx_receive),
-            'user_class': Util.getUserClass(user_idx_receive),
-        }
         new_workout = {
             'workout_idx': Util.get_next_sequence('workout', 'workout_idx'),
             'host_user_idx': user_idx_receive, 
@@ -136,7 +131,7 @@ def registerWorkout():
             'image_url': Util.getCategoryImageUrl(category_receive),
             'maximum': maximum_receive, 
             'current_people': 1,
-            'participants': [participants_host],
+            'participants': [],
         }
         try:
             collection_workout.insert_one(new_workout)
@@ -146,8 +141,85 @@ def registerWorkout():
             return jsonify({'result': 'fail', 'msg': e})
     # 토큰이 유효하지 않으면 
     else:
-        return 'Token not found in headers', 401   
-    
+        return 'Token not found in headers', 401                                                                                                                                                                                        
+#모임 참가/취소
+@app.route('/workout/join',methods=['POST','DELETE'])
+def joinOrExitWorkout():
+    workout_idx_receive = int(request.form['workout_idx'])
+    user_idx_receive = int(request.form['user_idx'])
+
+    user_name = Util.getUserName(user_idx_receive)
+    user_class = Util.getUserClass(user_idx_receive)
+
+    token = request.headers.get('Authorization')  # 토큰 정보 가져오기
+
+    # 토큰이 유효할 경우
+    if token:
+        try:
+            workout = collection_workout.find_one({'workout_idx':workout_idx_receive}) #토큰이 있을때 찾기로 수정
+            myquery = {"workout_idx":workout_idx_receive}
+            participants = workout['participants']  
+
+            current_people = workout['current_people']
+            maximum=workout['maximum']
+
+            #참여하기
+            if request.method == 'POST':
+                if current_people <= (maximum - 1):
+                    new_current_people = {
+                        "$set" : { "current_people" : current_people + 1 }
+                    }
+                    new_participants = {
+                        "$set": { 
+                            "participants" : + [
+                                {
+                                    'user_idx': user_idx_receive, 
+                                    'user_name': user_name,
+                                    'user_class': user_class,
+                                }
+                            ] 
+                        }
+                    }
+                    collection_workout.update_one(myquery,new_current_people)
+                    collection_workout.update_one(myquery,new_participants)
+                    return jsonify({'result':'success','msg':'모임에 참여하였습니다.'})
+            
+                else:
+                    return jsonify({'result':'fail','msg':'현재 모임이 최대 인원에 도달하여서 참여하지 못하였습니다.'})    
+                
+            #method=='DELETE'인 경우. 참여 취소 
+            else:
+                if {'user_idx':user_idx_receive,'user_name':user_name} in participants:
+                    new_current_people = {
+                        "$set" : { "current_people" : current_people - 1 }
+                    }
+                    new_participants = {
+                        "$set": { 
+                            "participants" : - [
+                                {
+                                    'user_idx': user_idx_receive, 
+                                    'user_name': user_name,
+                                    'user_class': user_class,
+                                }
+                            ] 
+                        }
+                    }
+                    collection_workout.update_one(myquery,new_current_people)
+                    collection_workout.update_one(myquery,new_participants)
+                    return jsonify({'result':'success','msg':'모임 참여를 취소하였습니다.'})
+            
+                else:
+                    return jsonify({'result':'fail','msg':'해당 모임에 참여하고 있지 않습니다.'})
+            
+                                                                     
+        except Exception as e:
+            print(f"Workout participation error: {e}")
+            return jsonify({'result':'fail','msg':e})
+
+    # 토큰이 유효하지 않으면
+    else: 
+        return 'Token not found in headers',401
+
 
 ## 모임 삭제
 @app.route('/workout', methods=['DELETE'])
@@ -164,74 +236,6 @@ def removeWorkout():
             return jsonify({'result': 'fail', 'msg': e})
     else:
         return 'Token not found in headers', 401
-
-
-#모임 참가/취소
-@app.route('/workout/join', methods=['POST', 'DELETE'])
-def joinOrExitWorkout():
-    workout_idx_receive = int(request.form['workout_idx'])
-    user_idx_receive = int(request.form['user_idx'])
-    user_name = Util.getUserName(user_idx_receive)
-    user_class = Util.getUserClass(user_idx_receive)
-
-    token = request.headers.get('Authorization')
-
-    # 토큰이 유효할 경우
-    if token:
-        myquery = {"workout_idx": workout_idx_receive}
-        workout = collection_workout.find_one({'workout_idx': workout_idx_receive})
-
-        participants = workout['participants']  
-        current_people = workout['current_people']
-        maximum = workout['maximum']
-
-        #참여하기
-        if request.method == 'POST':
-            if current_people <= (maximum - 1):
-                new_current_people = {
-                    "$set" : { "current_people" : current_people + 1 }
-                }
-                new_participants = {
-                    "$set": { 
-                        "participants" : participants + [
-                            {
-                                'user_idx': user_idx_receive, 
-                                'user_name': user_name,
-                                'user_class': user_class,
-                            }
-                        ] 
-                    }
-                }
-                collection_workout.update_one(myquery,new_current_people)
-                collection_workout.update_one(myquery,new_participants)
-                return jsonify({'result':'success', 'msg':'모임에 참여하였습니다.'})
-        
-            else:
-                return jsonify({'result':'fail', 'msg':'현재 모임이 최대 인원에 도달하여서 참여하지 못하였습니다.'})    
-            
-        # 참여 취소 
-        else:
-            if {'user_idx':user_idx_receive,'user_name': user_name, 'user_class': user_class} in participants:
-                new_current_people = {
-                    "$set" : { "current_people" : current_people - 1 }
-                }
-                new_participants = participants.remove(
-                    {
-                        'user_idx': user_idx_receive, 
-                        'user_name': user_name,
-                        'user_class': user_class,
-                    }
-                )
-                print(new_participants)
-                collection_workout.update_one(myquery,new_current_people)
-                collection_workout.update_one(myquery,new_participants)
-                return jsonify({'result':'success', 'msg':'모임 참여를 취소하였습니다.'})
-        
-            else:
-                return jsonify({'result':'fail', 'msg':'해당 모임에 참여하고 있지 않습니다.'})
-    # 토큰이 유효하지 않으면
-    else: 
-        return 'Token not found in headers',401
 
 
 if __name__ == '__main__':  
